@@ -10,16 +10,18 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
 public class Board implements ActionListener, MouseListener, KeyListener {
     private ArrayList<Sheep> sheep;
-    private ArrayList<TowerRepulsor> tRepulsor;
+    private ArrayList<Tower> towers;
 	public Renderer renderer;
     public int score = 0;
     public Random rand;
 
+    public final int trailLength = 10;
 	public final int WIDTH = 800, HEIGHT = 800;
 	public int goalCenterX = WIDTH/2;
 	public int goalCenterY = HEIGHT/2;
@@ -47,16 +49,16 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 			sheep.add(new Sheep(randX, randY));
 		}
 		
-		tRepulsor = new ArrayList<TowerRepulsor>();
-		tRepulsor.add(new TowerRepulsor(100.0, 100.0, 5000.0));
-		tRepulsor.add(new TowerRepulsor(800.0, 800.0, 5000.0));
+		towers = new ArrayList<Tower>();
+		towers.add(new TowerRepulsor(100.0, 100.0, 5000.0));
+		towers.add(new TowerRepulsor(800.0, 800.0, 5000.0));
 
 		Timer timer = new Timer(17, this);
 		timer.start();		
     }
 
     public void addTower(int[] coordinates, int power){
-        tRepulsor.add(new TowerRepulsor(coordinates[0], coordinates[1], power));
+        towers.add(new TowerRepulsor(coordinates[0], coordinates[1], power));
     }
     
 	private void checkSheepGoal() {
@@ -93,10 +95,16 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		
 		drawGoal(g);
 		
-		g.setColor(Color.blue);
 		for(int i = 0; i < sheep.size(); i++) {
-			if(sheep.get(i).destroyed!=true)
+			for(int j = 0; j < sheep.get(i).trail.size() - 1; j++){
+				g.drawLine((int) Math.round(sheep.get(i).trail.get(j)[0]), (int) Math.round(sheep.get(i).trail.get(j)[1]),
+							(int) Math.round(sheep.get(i).trail.get(j + 1)[0]), (int) Math.round(sheep.get(i).trail.get(j + 1)[1]));
+			}
+
+			g.setColor(Color.blue);
+			if(sheep.get(i).destroyed!=true){
 				g.fillOval( (int) Math.round(sheep.get(i).x) , (int) Math.round(sheep.get(i).y), diameter, diameter);
+			}
 		}
 		
 		drawScore(g);
@@ -121,8 +129,8 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		
         for(int i = 0; i < sheep.size(); i++) {
             sheep.get(i).clearForce();
-            for(int j = 0; j < tRepulsor.size(); j++){
-                sheep.get(i).addForce(tRepulsor.get(j).calculateForce(sheep.get(i)));
+            for(int j = 0; j < towers.size(); j++){
+                sheep.get(i).addForce(towers.get(j).calculateForce(sheep.get(i)));
             }
             sheep.get(i).applyForce();
         }
@@ -155,16 +163,28 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 	public void mousePressed(MouseEvent e) {
 		int x = e.getX();
 		int y = e.getY();
-		if(tRepulsor.size() == 0) {
-			tRepulsor.add(new TowerRepulsor(x, y, 5000));
+
+		Tower newTower;
+
+		if(SwingUtilities.isLeftMouseButton(e)){
+			newTower = new TowerAttractor(x, y, 5000);
+		} else if(SwingUtilities.isRightMouseButton(e)){
+			newTower = new TowerRepulsor(x, y, 5000);
 		} else {
-			tRepulsor.set(0, new TowerRepulsor(x, y, 5000));
+			return;
+		}
+
+		if(towers.size() == 0) {
+			towers.add(newTower);
+		} else {
+			towers.set(0, newTower);
 		}
 		System.out.println(String.valueOf(x) + " " + String.valueOf(y));		
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		towers.remove(0);
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,5 +1,8 @@
+import java.util.ArrayList;
+
 public class Sheep {
     public double x, y;
+    public ArrayList<Double[]> trail;
     public double dX, dY;
     public boolean destroyed;
 
@@ -7,6 +10,7 @@ public class Sheep {
         x = a; y = b;
         dX = 0; dY = 0;
         destroyed = false;
+        trail = new ArrayList<Double[]>();
     }
 
     public void clearForce(){
@@ -23,6 +27,14 @@ public class Sheep {
     }
 
     public void applyForce(){
+        Double[] lastPos = new Double[2];
+        lastPos[0] = x;
+        lastPos[1] = y;
+        trail.add(lastPos);
+        if(trail.size() >= Runner.b.trailLength){
+            trail.remove(0);
+        }
+
         x += dX;
         y += dY;
         dX = dY = 0;
