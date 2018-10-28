@@ -17,6 +17,7 @@ import javax.swing.Timer;
 public class Board implements ActionListener, MouseListener, KeyListener {
     private ArrayList<Sheep> sheep;
     private ArrayList<Tower> towers;
+    private ArrayList<Fence> fences;
 	public Renderer renderer;
     public int score = 0;
     public Random rand;
@@ -52,6 +53,9 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		towers = new ArrayList<Tower>();
 		towers.add(new TowerRepulsor(100.0, 100.0, 5000.0));
 		towers.add(new TowerRepulsor(800.0, 800.0, 5000.0));
+
+		fences = new ArrayList<Fence>();
+		fences.add(new Fence(20, 100, 600, 100));
 
 		Timer timer = new Timer(17, this);
 		timer.start();		
@@ -95,6 +99,21 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		
 		drawGoal(g);
 		
+		drawSheep(g);
+
+		drawFences(g);
+		
+		drawScore(g);
+	}
+
+	private void drawScore(Graphics g) {
+		g.setColor(Color.RED);
+		g.setFont(new Font("SanSerif", Font.PLAIN, 20));
+		g.drawString("score is: " + score, 0, 20);
+		
+	}
+
+	private void drawSheep(Graphics g){
 		for(int i = 0; i < sheep.size(); i++) {
 			for(int j = 0; j < sheep.get(i).trail.size() - 1; j++){
 				g.drawLine((int) Math.round(sheep.get(i).trail.get(j)[0]), (int) Math.round(sheep.get(i).trail.get(j)[1]),
@@ -106,16 +125,13 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 				g.fillOval( (int) Math.round(sheep.get(i).x) , (int) Math.round(sheep.get(i).y), diameter, diameter);
 			}
 		}
-		
-		drawScore(g);
 	}
 
-	private void drawScore(Graphics g) {
-		g.setColor(Color.RED);
-		g.setFont(new Font("SanSerif", Font.PLAIN, 20));
-		g.drawString("score is: " + score, 0, 20);
-		
-	}
+	 private void drawFences(Graphics g){
+		 for(int i = 0; i < fences.size(); i++){
+			 g.drawLine(fences.get(i).pX1, fences.get(i).pY1, fences.get(i).pX2, fences.get(i).pY2);
+		 }
+	 }
 
 	private void drawGoal(Graphics g) {
 		g.setColor(Color.YELLOW);
@@ -135,7 +151,21 @@ public class Board implements ActionListener, MouseListener, KeyListener {
             for(int j = 0; j < towers.size(); j++){
                 sheep.get(i).addForce(towers.get(j).calculateForce(sheep.get(i)));
             }
-            sheep.get(i).applyForce();
+            
+            Fence bestFence = null;
+            double closestDistance = 1e18;
+            for(int j = 0; j < fences.size(); j++) {
+            	if(closestDistance > fences.get(j).distance(sheep.get(i))) {
+            		bestFence = fences.get(j);
+            		closestDistance = fences.get(j).distance(sheep.get(i));
+            	}
+            }
+            
+            if(bestFence != null) {
+            	sheep.set(i, bestFence.reflect(sheep.get(i)));
+            } else {
+            	sheep.get(i).applyForce();            	
+            }
         }
     }
     
@@ -187,7 +217,6 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		towers.remove(0);
 		// TODO Auto-generated method stub
 		
 	}

@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 public class Sheep {
     public double x, y;
+    public double diameter = 10;
     public ArrayList<Double[]> trail;
     public double dX, dY;
     public boolean destroyed;
