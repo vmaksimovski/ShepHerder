@@ -1,14 +1,13 @@
 package src;
 
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -102,7 +101,7 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		towers = new ArrayList<Tower>();
 		
 		fences = new ArrayList<Fence>();
-		fences.add(new Fence(0, 0, WIDTH, 0));
+		fences.add(new Fence(0, HEIGHT/2, WIDTH, HEIGHT/2));
 		fences.add(new Fence(0, 0, 0, HEIGHT));
 		fences.add(new Fence(0, HEIGHT, WIDTH, HEIGHT));
 		fences.add(new Fence(WIDTH, 0, WIDTH, HEIGHT));
@@ -239,6 +238,8 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 	private void drawFences(Graphics g){
 		g.setColor(Color.BLACK);
 		for(int i = 0; i < fences.size(); i++){
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setStroke(new BasicStroke(5));
 			g.drawLine(fences.get(i).pX1, fences.get(i).pY1, fences.get(i).pX2, fences.get(i).pY2);
 		}
 	}
