@@ -128,6 +128,9 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		checkSheepGoal();
 		
         for(int i = 0; i < sheep.size(); i++) {
+            if(sheep.get(i).destroyed == true){
+            	continue;
+            }
             sheep.get(i).clearForce();
             for(int j = 0; j < towers.size(); j++){
                 sheep.get(i).addForce(towers.get(j).calculateForce(sheep.get(i)));
