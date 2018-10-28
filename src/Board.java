@@ -1,30 +1,29 @@
 package src;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 
-public class Board implements ActionListener, MouseListener, KeyListener {	
+public class Board implements ActionListener, MouseListener, KeyListener {
     private ArrayList<Sheep> sheep;
     private ArrayList<Tower> towers;
+    private ArrayList<Goal> goals;
     private ArrayList<Fence> fences;
     public int score = 0;
     public Random rand;
@@ -36,50 +35,31 @@ public class Board implements ActionListener, MouseListener, KeyListener {
     public Renderer renderer;
     
     public boolean gameStart = false;
-    
-    public final int trailLength = 10;
+    public int numOfGoals = 3;
+    public final static int trailLength = 10;
 	public final int WIDTH = 800, HEIGHT = 800;
-	public int goalCenterX = WIDTH/2;
-	public int goalCenterY = HEIGHT/2;
-	public int goalRadius = 100;
-	public int smallGoalRadius = 70;
 	public int diameter = 10;
 	
 	public int sideMenuWidth = 200;
-	
-	public String help;
 	
     /**
      * above code initialized various variable
      * @param sheepSize
      */
 	
-    public Board(int sheepSize){
+    public Board(int sheepSize, int level){
     	renderer = new Renderer();
     	infoPanel = new JPanel();
-    	infoPanel.setPreferredSize(new Dimension(300, 300));
-    	infoPanel.setBackground(Color.GRAY);
+    	infoPanel.setBackground(Color.GREEN);
 		jframe = new JFrame();
 		jframe.setIconImage(new ImageIcon("src/spaceship.png").getImage());
 		jframe.add(renderer);
 		button = makeStartButton(jframe);
-		button.setFont(new Font("Monospaced", Font.BOLD, 40));
-		button.setBackground(Color.YELLOW);
-		button.setForeground(Color.BLUE);
 		
-		infoPanel.add(button, BorderLayout.CENTER);
-		help = "<HTML>Press the button to start the game. "
-				+ "<BR>You can use left click and right click to respectivally"
-				+ "<BR>push away or attrac the blue dot. "
-				+ "<BR>The goal is to get as much as you can into the goal marked as a ring!</HTML>";
-		JLabel information = new JLabel(help);
-		information.setFont(new Font("Monospaced", Font.ITALIC, 20));
-		information.setBackground(Color.ORANGE);
-		information.setForeground(Color.GREEN);
-		jlabel = new JLabel("This is a start button!");
-		infoPanel.add(jlabel, BorderLayout.CENTER);
-		infoPanel.add(information, BorderLayout.CENTER);
-		jframe.add(infoPanel, BorderLayout.CENTER);
+		infoPanel.add(button);
+		jlabel = new JLabel("Hello World");
+		infoPanel.add(jlabel);
+		jframe.add(infoPanel);
 		//this above line adding a JPanel is screwing up the display of the game somehow
 		jframe.setTitle("the SHEPherd");
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,24 +75,49 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		
 		rand = new Random();
 		sheep = new ArrayList<Sheep>();
-		for(int i = 0; i < sheepSize; i++) {
+		/*for(int i = 0; i < sheepSize; i++) {
 			double randX = rand.nextDouble() * (WIDTH - 50);
 			double randY = rand.nextDouble() * (HEIGHT - 50);
 			sheep.add(new Sheep(randX, randY));
+		}*/
+		//generate sheep clusters
+		if(level == 1) {
+			createHerd(0,0,100,100, 10); //just an example, i sum the number of sheep to be 100.
+			createHerd(300,300,400,400, 30);
+			createHerd(500,500,600,600, 40);
+			createHerd(650,650,750,750, sheepSize - 40 - 30 -10);			
 		}
+		//generate goals
+		
+
+		goals = new ArrayList<Goal>();
+		goals.add(new Goal (WIDTH/2,HEIGHT/2,100,70));
+		goals.add(new Goal (WIDTH/4,HEIGHT/4,100,70)); 
+		goals.add(new Goal (1*WIDTH/8,7*HEIGHT/8,100,70));
+		/* THIS IS HOW WE WOULD GENERATE DIFFERENT LEVELS!
+		for(int i = 0; i < numOfGoals; i++) {
+			goals.get(i) = new Goal(WIDTH/2,HEIGHT/2,100,70);	
+		}*/
 		
 		towers = new ArrayList<Tower>();
-//		tRepulsor.add(new TowerRepulsor(100.0, 100.0, 5000.0));
-//		tRepulsor.add(new TowerRepulsor(800.0, 800.0, 5000.0));
-		//makeStartButton(jframe);
-
+		
 		fences = new ArrayList<Fence>();
-		fences.add(new Fence(20, 100, 600, 100));
-		
+//		fences.add(new Fence(0, 0, WIDTH, 0));
+//		fences.add(new Fence(0, 0, WIDTH, 0));
+//		fences.add(new Fence(0, HEIGHT, WIDTH, HEIGHT));
+//		fences.add(new Fence(WIDTH, 0, WIDTH, HEIGHT));
+
 		Timer timer = new Timer(17, this);
-		timer.start();		
-		
-		
+		timer.start();				
+    }
+    
+    public void createHerd(int x,int y, int width, int height, int numberOfSheep) {
+    	
+    	for(int i = 0; i < numberOfSheep; i++) {
+    		double randX = rand.nextDouble() * (x-width) + width;
+        	double randY = rand.nextDouble() * (y-height) + height;
+        	sheep.add(new Sheep(randX,randY));
+    	}
     }
     
     public void addTower(int[] coordinates, int power){
@@ -143,21 +148,29 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 	}
     
 	private void checkSheepGoal() {
-		for(int i = 0; i < sheep.size(); i ++) {
-			double x = sheep.get(i).x + diameter/4.0;
-			double y = sheep.get(i).y + diameter/4.0;  //1/4 of the diameter
-			double r = Math.sqrt((x-goalCenterX)*(x-goalCenterX) + (y-goalCenterY)*(y-goalCenterY));
-			if(r<=smallGoalRadius && !sheep.get(i).destroyed) {
-				sheep.get(i).destroyed = true;
-				scoreUp();
-			}
+//		for(int i = 0; i < sheep.size(); i ++) {
+//			double x = sheep.get(i).x + diameter/4.0;
+//			double y = sheep.get(i).y + diameter/4.0;  //1/4 of the diameter
+//			double r = Math.sqrt((x-goalCenterX)*(x-goalCenterX) + (y-goalCenterY)*(y-goalCenterY));
+//			if(r<=smallGoalRadius && !sheep.get(i).destroyed) {
+//				sheep.get(i).destroyed = true;
+//				scoreUp();
+//			}
 			//if sheep is in circle
 				//if r < radius
 			//get rid of sheep 
 			//add score
+		for(int i = 0; i < sheep.size(); i++) {
+			for(int j = 0; j < goals.size(); j++) {
+				if(sheep.get(i).isInGoal(goals.get(j))) {
+					scoreUp();
+					sheep.get(i).destroyed = true;
+					
+				}
+			}
 		}
-
 	}
+
 	private void scoreUp() {
 		score++;
 	}
@@ -182,13 +195,14 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		//paints background
 		//everything else should come after this
-		drawGoal(g);
+		
+		for(int i = 0; i < goals.size(); i++){
+			goals.get(i).drawGoal(g);
+		}
 		
 		g.setColor(Color.blue);
 		drawSheep(g);
 			
-		drawFences(g);
-		
 		g.setColor(Color.ORANGE);
 		g.fillRect(WIDTH, 0, sideMenuWidth, HEIGHT);
 		drawScore(g);
@@ -221,7 +235,6 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 				+ "\npush away or attrac the blue dot. "
 				+ "\nThe goal is to get as much as you can into the goal marked as a ring!";
 		g.drawString(info, WIDTH, HEIGHT/3);
-		
 	}
 
 	private void drawScore(Graphics g) {
@@ -230,20 +243,20 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		g.drawString("score is: " + score, WIDTH, 20);
 		
 	}
-	
+
 	private void drawFences(Graphics g){
 		g.setColor(Color.BLACK);
-		 for(int i = 0; i < fences.size(); i++){
-			 g.drawLine(fences.get(i).pX1, fences.get(i).pY1, fences.get(i).pX2, fences.get(i).pY2);
-		 }
-	 }
+		for(int i = 0; i < fences.size(); i++){
+			g.drawLine(fences.get(i).pX1, fences.get(i).pY1, fences.get(i).pX2, fences.get(i).pY2);
+		}
+	}
 
-	private void drawGoal(Graphics g) {
-		g.setColor(Color.YELLOW);
-		g.fillOval(goalCenterX-goalRadius, goalCenterY-goalRadius, goalRadius*2, goalRadius*2);
-		g.setColor(Color.WHITE);
-		g.fillOval(goalCenterX-smallGoalRadius, goalCenterY-smallGoalRadius, smallGoalRadius*2, smallGoalRadius*2);
-	}	
+//	private void drawGoal(Graphics g) {
+//		g.setColor(Color.YELLOW);
+//		g.fillOval(goalCenterX-goalRadius, goalCenterY-goalRadius, goalRadius*2, goalRadius*2);
+//		g.setColor(Color.WHITE);
+//		g.fillOval(goalCenterX-smallGoalRadius, goalCenterY-smallGoalRadius, smallGoalRadius*2, smallGoalRadius*2);
+//	}	
 	
     public void tick(){
 		checkSheepGoal();

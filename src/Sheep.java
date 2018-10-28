@@ -45,4 +45,16 @@ public class Sheep {
         dY *= 0.98851402035289613535686750493829;
 //        dX = dY = 0;
     }
+    
+    public boolean isInGoal (Goal goal) {
+    	double x_1 = x + diameter/4.0;
+    	double y_1 = y + diameter/4.0;
+		double r = Math.sqrt((x_1-goal.goalX)*(x_1-goal.goalX) + (y_1-goal.goalY)*(y_1-goal.goalY));
+		if(r<=goal.smallGoalRadius && !destroyed) {
+				destroyed = true;
+				return true;
+				//scoreUp();
+		}   	
+    	return false;
+    }
 }
