@@ -1,4 +1,4 @@
-package SHEPherd;
+package src;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -166,7 +166,6 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource() == button) {
 			gameStart = true;
-			System.out.println(gameStart);
 			jframe.remove(infoPanel);
 			jframe.add(renderer);
 			renderer.revalidate();

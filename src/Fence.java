@@ -1,4 +1,4 @@
-package SHEPherd;
+package src;
 
 public class Fence {
 	enum Direction {
@@ -30,28 +30,28 @@ public class Fence {
 		}
 	}
 
-	public boolean collides(Sheep sheep){
+	public int collides(Sheep sheep){
 		if(dir == Direction.vert){
 			if(sheep.x < pX1 && sheep.x + sheep.dX + sheep.diameter >= pX1 && pY1 < sheep.y + sheep.dY + sheep.diameter && sheep.y + sheep.dY < pY2){
-				return true;
+				return 1;
 			} else if(pX1 < sheep.x + sheep.diameter && sheep.x + sheep.dX <= pX1 && pY1 < sheep.y + sheep.dY + sheep.diameter && sheep.y + sheep.dY < pY2){
-				return true;
+				return 2;
 			}
 		} else if(dir == Direction.horiz){
 			if(sheep.y < pY1 && sheep.y + sheep.dY + sheep.diameter >= pY1 && pX1 < sheep.x + sheep.dX + sheep.diameter && sheep.x + sheep.dX < pX2){
-				return true;
+				return 3;
 			} else if(pY1 < sheep.y + sheep.diameter && sheep.y + sheep.dY <= pY1 && pX1 < sheep.x + sheep.dX + sheep.diameter && sheep.x + sheep.dX < pX2){
-				return true;
+				return 4;
 			}
 		}
 
-		return false;
+		return 0;
 	}
 	
 	public double distance(Sheep sheep){
-		if(dir == Direction.vert && collides(sheep)){
+		if(dir == Direction.vert && collides(sheep) != 0){
 			return Math.abs(sheep.x - pX1);
-		} else if(dir == Direction.horiz && collides(sheep)){
+		} else if(dir == Direction.horiz && collides(sheep) != 0){
 			return Math.abs(sheep.y - pY1);
 		} else {
 			// double A = x - x1; // position of point rel one end of line
@@ -71,19 +71,21 @@ public class Fence {
 	}
 
 	public Sheep reflect(Sheep sheep) {
-		assert collides(sheep) == true : "NO COLLISION";
+		assert collides(sheep) != 0 : "NO COLLISION";
 		
 		if(dir == Direction.vert) {
 			sheep.applyForce();
-			if(sheep.x > pX1) {
+			sheep.dX *= -1;
+			if(collides(sheep) == 1) {
 				sheep.x = pX1 - Math.abs(pX1 - sheep.x);
 			} else {
 				sheep.x = pX1 + Math.abs(pX1 - sheep.x);
 			}
 		} else if(dir == Direction.horiz) {
-			sheep.applyForce();
-			if(sheep.y > pY1) {
-				sheep.y = pY1 - Math.abs(pY1 - sheep.y);
+ 			sheep.applyForce();
+			sheep.dY *= -1;
+			if(collides(sheep) == 3) {
+				sheep.y = pY1 - Math.abs(pY1 - (sheep.y + sheep.diameter));
 			} else {
 				sheep.y = pY1 + Math.abs(pY1 - sheep.y);
 			}	

@@ -1,4 +1,4 @@
-package SHEPherd;
+package src;
 
 public class TowerAttractor extends Tower {
     public TowerAttractor(double newX, double newY, double newPower) {

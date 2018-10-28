@@ -1,4 +1,4 @@
-package SHEPherd;
+package src;
 
 
 import java.awt.Graphics;

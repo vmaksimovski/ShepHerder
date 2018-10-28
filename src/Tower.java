@@ -1,4 +1,4 @@
-package SHEPherd;
+package src;
 
 abstract class Tower {
     double x, y;
