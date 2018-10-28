@@ -1,3 +1,5 @@
+package SHEPherd;
+
 public class Fence {
 	enum Direction {
 		vert,

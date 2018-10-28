@@ -1,11 +1,13 @@
+package SHEPherd;
+
 import java.util.ArrayList;
 
 public class Sheep {
     public double x, y;
-    public double diameter = 10;
     public ArrayList<Double[]> trail;
     public double dX, dY;
     public boolean destroyed;
+    public double diameter = 10;
 
     public Sheep(double a, double b){
         x = a; y = b;
@@ -15,7 +17,7 @@ public class Sheep {
     }
 
     public void clearForce(){
-        dX = dY = 0;
+//        dX = dY = 0;
     }
 
     public void addForce(double fX, double fY){
@@ -28,16 +30,19 @@ public class Sheep {
     }
 
     public void applyForce(){
-        Double[] lastPos = new Double[2];
-        lastPos[0] = x;
-        lastPos[1] = y;
+    	
+    	Double[] lastPos = new Double[2];
+        lastPos[0] = x + diameter/2 ;
+        lastPos[1] = y + diameter/2;
         trail.add(lastPos);
         if(trail.size() >= Runner.b.trailLength){
             trail.remove(0);
         }
-
+        
         x += dX;
         y += dY;
-        dX = dY = 0;
+        dX *= 0.98851402035289613535686750493829;
+        dY *= 0.98851402035289613535686750493829;
+//        dX = dY = 0;
     }
 }

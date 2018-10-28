@@ -1,7 +1,8 @@
+package SHEPherd;
 
 public class Runner{
 	public static Board b;
 	public static void main(String args[]) {
-		b = new Board(1);
+		b = new Board(1000);
 	}
 }

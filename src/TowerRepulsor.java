@@ -1,3 +1,5 @@
+package SHEPherd;
+
 import java.lang.Math;
 
 public class TowerRepulsor extends Tower {
@@ -12,7 +14,7 @@ public class TowerRepulsor extends Tower {
         if(disabled){
             return force;
         }
-
+        
         double r = Math.sqrt((sheep.y - this.y) * (sheep.y - this.y) + (sheep.x - this.x) * (sheep.x - this.x));
         double theta = Math.atan2((sheep.y - this.y), (sheep.x - this.x));
         force[0] += this.power/(r*Math.sqrt(r))*Math.cos(theta);
