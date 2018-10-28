@@ -102,17 +102,16 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		towers = new ArrayList<Tower>();
 		
 		fences = new ArrayList<Fence>();
-//		fences.add(new Fence(0, 0, WIDTH, 0));
-//		fences.add(new Fence(0, 0, WIDTH, 0));
-//		fences.add(new Fence(0, HEIGHT, WIDTH, HEIGHT));
-//		fences.add(new Fence(WIDTH, 0, WIDTH, HEIGHT));
+		fences.add(new Fence(0, 0, WIDTH, 0));
+		fences.add(new Fence(0, 0, 0, HEIGHT));
+		fences.add(new Fence(0, HEIGHT, WIDTH, HEIGHT));
+		fences.add(new Fence(WIDTH, 0, WIDTH, HEIGHT));
 
 		Timer timer = new Timer(17, this);
 		timer.start();				
     }
     
     public void createHerd(int x,int y, int width, int height, int numberOfSheep) {
-    	
     	for(int i = 0; i < numberOfSheep; i++) {
     		double randX = rand.nextDouble() * (x-width) + width;
         	double randY = rand.nextDouble() * (y-height) + height;
@@ -148,14 +147,6 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 	}
     
 	private void checkSheepGoal() {
-//		for(int i = 0; i < sheep.size(); i ++) {
-//			double x = sheep.get(i).x + diameter/4.0;
-//			double y = sheep.get(i).y + diameter/4.0;  //1/4 of the diameter
-//			double r = Math.sqrt((x-goalCenterX)*(x-goalCenterX) + (y-goalCenterY)*(y-goalCenterY));
-//			if(r<=smallGoalRadius && !sheep.get(i).destroyed) {
-//				sheep.get(i).destroyed = true;
-//				scoreUp();
-//			}
 			//if sheep is in circle
 				//if r < radius
 			//get rid of sheep 
@@ -207,6 +198,7 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		g.fillRect(WIDTH, 0, sideMenuWidth, HEIGHT);
 		drawScore(g);
 		drawHelp(g);
+		drawFences(g);
 	}
 
 	private void drawSheep(Graphics g){
@@ -267,22 +259,6 @@ public class Board implements ActionListener, MouseListener, KeyListener {
                 sheep.get(i).addForce(towers.get(j).calculateForce(sheep.get(i)));	                
             }
             
-			if(sheep.get(i).y > HEIGHT - 42) {
-				sheep.get(i).y = HEIGHT - Math.abs(HEIGHT - sheep.get(i).y);
-				sheep.get(i).dY *= -1;
-			}
-			if(sheep.get(i).y < 0) {
-				sheep.get(i).y = Math.abs(sheep.get(i).y);
-				sheep.get(i).dY *= -1;
-			}
-			if(sheep.get(i).x > WIDTH - diameter) {
-				sheep.get(i).x = WIDTH - Math.abs(WIDTH - sheep.get(i).x);
-				sheep.get(i).dX *= -1;
-			}
-			if(sheep.get(i).x < 0) {
-				sheep.get(i).x = Math.abs(sheep.get(i).x);
-				sheep.get(i).dX *= -1;
-			}
 			Fence bestFence = null;
             double closestDistance = 1e18;
             for(int j = 0; j < fences.size(); j++) {
