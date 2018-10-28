@@ -10,7 +10,10 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Random;
+import java.awt.image.*;
+import java.io.File;
 
+import javax.imageio.*;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,6 +30,10 @@ public class Board implements ActionListener, MouseListener, KeyListener {
     public int score = 0;
     public int level = 0;
     public Random rand;
+    public String help;
+    public ImageIcon img;
+    public BufferedImage image;
+    public JLabel picLabel;
     
     public JFrame jframe;
     public JPanel infoPanel;
@@ -50,20 +57,42 @@ public class Board implements ActionListener, MouseListener, KeyListener {
     public Board(int sheepSize, int level){
     	renderer = new Renderer();
     	infoPanel = new JPanel();
-    	infoPanel.setBackground(Color.GREEN);
+    	infoPanel.setPreferredSize(new Dimension(300, 300));
+    	infoPanel.setBackground(Color.GRAY);
 		jframe = new JFrame();
 		jframe.setIconImage(new ImageIcon("src/spaceship.png").getImage());
 		jframe.add(renderer);
 		button = makeStartButton(jframe);
+		button.setFont(new Font("Papyrus", Font.BOLD, 35));
+		button.setBackground(Color.YELLOW);
+		button.setForeground(Color.BLUE);
 		
-		infoPanel.add(button);
-		jlabel = new JLabel("Hello World");
-		infoPanel.add(jlabel);
-		jframe.add(infoPanel);
+		try {
+			image = ImageIO.read(new File("src/rsz_11us.png"));
+		} catch (Exception e) {
+			System.out.println("ERROR: NO SUCH FILE");
+		}
+		picLabel = new JLabel(new ImageIcon(image));
+		infoPanel.add(button, BorderLayout.CENTER);
+		help = "<HTML>Press the button to start the game. "
+				+ "<BR>You can use left click and right click to respectivally"
+				+ "<BR>push away or attrac the blue dot. "
+				+ "<BR>The goal is to get as much as you can into the goal marked as a ring!</HTML>";
+		JLabel information = new JLabel(help);
+		information.setFont(new Font("Monospaced", Font.ITALIC, 20));
+		information.setBackground(Color.ORANGE);
+		information.setForeground(Color.GREEN);
+		jlabel = new JLabel("This is a start button!");
+		infoPanel.add(jlabel, BorderLayout.CENTER);
+		infoPanel.add(information, BorderLayout.CENTER);
+		jframe.add(infoPanel, BorderLayout.CENTER);
+		JLabel picLabel = new JLabel(new ImageIcon(image));
+		infoPanel.add(picLabel);
+		infoPanel.repaint(); 
 		//this above line adding a JPanel is screwing up the display of the game somehow
 		jframe.setTitle("the SHEPherd");
 		jframe.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jframe.setSize(WIDTH+sideMenuWidth, HEIGHT);
+		jframe.setSize(WIDTH, HEIGHT);
 		jframe.addMouseListener(this);
 		jframe.addKeyListener(this);
 		jframe.setResizable(false);
@@ -101,44 +130,6 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		timer.start();				
     }
 
-    private void initLevel(int level) {
-    	if(level == 1) {
-			createHerd(100,600,100,100, 100); //just an example, i sum the number of sheep to be 100.
-			goals.add(new Goal(WIDTH/2,HEIGHT/2,200,190));
-//			
-		}
-		else if(level == 2) {
-			goals.add(new Goal(WIDTH/4,HEIGHT/2,100,95));
-			goals.add(new Goal(3*WIDTH/4,HEIGHT/2,100,95));
-
-			//createHerd(100,600,100,100, 100); //just an example, i sum the number of sheep to be 100.
-
-			createHerd(350,50,100,100, 50); //just an example, i sum the number of sheep to be 100.
-			createHerd(350,600,100,100, 50);
-		}
-		else if(level == 3) {
-			goals.add(new Goal(WIDTH/2,HEIGHT/4,50,45));
-			goals.add(new Goal(WIDTH/3,HEIGHT/2,50,45));
-			goals.add(new Goal(2*WIDTH/3,HEIGHT/2,50,45));
-			createHerd(350,350,100,100, 30); //just an example, i sum the number of sheep to be 100.
-			createHerd(WIDTH/4,HEIGHT/4,100,100, 35); //just an example, i sum the number of sheep to be 100.
-			createHerd((int)(2.5*WIDTH/4),HEIGHT/4,100,100, 35); //just an example, i sum the number of sheep to be 100.
-		}
-		else if(level == 4) {
-			goals.add(new Goal(WIDTH/10,HEIGHT/4,50,45));
-			goals.add(new Goal(8*WIDTH/10,HEIGHT/4,50,45));
-			goals.add(new Goal(WIDTH/10,3*HEIGHT/4,50,45));
-			goals.add(new Goal(8*WIDTH/10,3*HEIGHT/4,50,45));
-			createHerd(350,350,100,100,100);
-		}
-		/* THIS IS HOW WE WOULD GENERATE DIFFERENT LEVELS!
-		for(int i = 0; i < numOfGoals; i++) {
-			goals.get(i) = new Goal(WIDTH/2,HEIGHT/2,100,70);	
-		}*/
-		
-	}
-
-    
     public void createHerd(int x,int y, int width, int height, int numberOfSheep) {
     	for(int i = 0; i < numberOfSheep; i++) {
     		double randX = rand.nextDouble() * (width) + x;
@@ -250,9 +241,14 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 	}
 	
 	private void drawScore(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setRenderingHint(
+		        RenderingHints.KEY_TEXT_ANTIALIASING,
+		        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g.setColor(Color.RED);
-		g.setFont(new Font("SanSerif", Font.PLAIN, 20));
-		g.drawString("score is: " + score, WIDTH, 20);
+		int fontY = 40;
+		g.setFont(new Font("Futura", Font.PLAIN, fontY));
+		g.drawString("score is: " + score, 5, fontY);
 		
 	}
 
@@ -383,4 +379,40 @@ public class Board implements ActionListener, MouseListener, KeyListener {
 		// TODO Auto-generated method stub
 		
 	}
+ 
+    private void initLevel(int level) {
+    	if(level == 1) {
+			createHerd(100,600,100,100, 100); //just an example, i sum the number of sheep to be 100.
+			goals.add(new Goal(WIDTH/2,HEIGHT/2,200,190));
+		}
+		else if(level == 2) {
+			goals.add(new Goal(WIDTH/4,HEIGHT/2,100,95));
+			goals.add(new Goal(3*WIDTH/4,HEIGHT/2,100,95));
+
+			//createHerd(100,600,100,100, 100); //just an example, i sum the number of sheep to be 100.
+
+			createHerd(350,50,100,100, 50); //just an example, i sum the number of sheep to be 100.
+			createHerd(350,600,100,100, 50);
+		}
+		else if(level == 3) {
+			goals.add(new Goal(WIDTH/2,HEIGHT/4,50,45));
+			goals.add(new Goal(WIDTH/3,HEIGHT/2,50,45));
+			goals.add(new Goal(2*WIDTH/3,HEIGHT/2,50,45));
+			createHerd(350,350,100,100, 30); //just an example, i sum the number of sheep to be 100.
+			createHerd(WIDTH/4,HEIGHT/4,100,100, 35); //just an example, i sum the number of sheep to be 100.
+			createHerd((int)(2.5*WIDTH/4),HEIGHT/4,100,100, 35); //just an example, i sum the number of sheep to be 100.
+		}
+		else if(level == 4) {
+			goals.add(new Goal(WIDTH/10,HEIGHT/4,50,45));
+			goals.add(new Goal(8*WIDTH/10,HEIGHT/4,50,45));
+			goals.add(new Goal(WIDTH/10,3*HEIGHT/4,50,45));
+			goals.add(new Goal(8*WIDTH/10,3*HEIGHT/4,50,45));
+			createHerd(350,350,100,100,100);
+		}
+		/* THIS IS HOW WE WOULD GENERATE DIFFERENT LEVELS!
+		for(int i = 0; i < numOfGoals; i++) {
+			goals.get(i) = new Goal(WIDTH/2,HEIGHT/2,100,70);	
+		}*/
+	}
+    
 }

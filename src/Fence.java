@@ -12,7 +12,6 @@ public class Fence {
 	int pX1, pX2, pY1, pY2;
 
 	public Fence(int temppX1, int temppY1, int temppX2, int temppY2){
-		System.out.println(temppY1 + " " + temppY2);
 		pX1 = Math.min(temppX1, temppX2);
 		pX2 = Math.max(temppX1, temppX2);
 		pY1 = Math.min(temppY1, temppY2);
